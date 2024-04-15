@@ -1,22 +1,11 @@
-CREATE TABLE
-    Flights (
-        FlightNumber VARCHAR(6) NOT NULL,
-        OriginIATA VARCHAR(3) NOT NULL,
-        Capacity INT NOT NULL,
-        EstimatedArrival DATE NOT NULL,
-        EstimateDeparture DATE NOT NULL,
-        DestinationIATA VARCHAR(3) NOT NULL,
-        PRIMARY KEY (FlightNumber)
-    );
+-- Washington State University: CptS451
+-- Spring 2024 Semester
+-- Student: Benjamin Farias Dela Mora
+-- Assignment: Homework 04
+-- Operating System: MS Windows
+CREATE DATABASE fbno_BFDM;
 
-CREATE TABLE
-    Schedule (
-        ScheduleID INT NOT NULL,
-        FlightDate DATE NOT NULL,
-        FlightNumber VARCHAR(6) NOT NULL,
-        PRIMARY KEY (ScheduleID),
-        FOREIGN KEY (FlightNumber) REFERENCES Flights (FlightNumber)
-    );
+USE fbno_BFDM;
 
 CREATE TABLE
     Person (
@@ -36,49 +25,70 @@ CREATE TABLE
 
 CREATE TABLE
     Employees (
-        EmployeeTitle VARCHAR(255) NOT NULL,
+        EmployeeTitle INT NOT NULL,
         PersonID INT NOT NULL,
         PRIMARY KEY (PersonID),
         FOREIGN KEY (PersonID) REFERENCES Person (PersonID)
     );
 
 CREATE TABLE
-    Maintenance (
-        MaintenanceID INT NOT NULL,
-        Date DATE NOT NULL,
-        Description VARCHAR(255) NOT NULL,
-        PersonID INT,
-        PRIMARY KEY (MaintenanceID),
-        FOREIGN KEY (PersonID) REFERENCES Employees (PersonID)
+    Flights (
+        FlightNumber VARCHAR(6) NOT NULL,
+        OriginIATA VARCHAR(3) NOT NULL,
+        Capacity INT NOT NULL,
+        EstimatedArrival TIME NOT NULL,
+        EstimateDeparture TIME NOT NULL,
+        DestinationIATA VARCHAR(3) NOT NULL,
+        PRIMARY KEY (FlightNumber)
     );
 
 CREATE TABLE
-    CrewAssignments (
-        ScheduleID INT NOT NULL,
-        PersonID INT NOT NULL,
+    Airplanes (
+        AirplaneSerialNumber VARCHAR(255) NOT NULL,
+        Model VARCHAR(255) NOT NULL,
+        Capacity INT NOT NULL,
+        NextMaintenanceDate DATE NOT NULL,
+        PRIMARY KEY (AirplaneSerialNumber)
+    );
+
+CREATE TABLE
+    MaintenanceRecords (
+        MaintenanceID INT NOT NULL AUTO_INCREMENT,
+        Date DATE NOT NULL,
+        Description VARCHAR(255) NOT NULL,
+        AirplaneSerialNumber VARCHAR(255),
+        FOREIGN KEY (AirplaneSerialNumber) REFERENCES Airplanes (AirplaneSerialNumber),
+        PRIMARY KEY (MaintenanceID)
+    );
+
+CREATE TABLE
+    Schedule (
+        ScheduleID INT NOT NULL AUTO_INCREMENT,
+        FlightDate DATE NOT NULL,
+        FlightNumber VARCHAR(6) NOT NULL,
         PRIMARY KEY (ScheduleID),
-        FOREIGN KEY (PersonID) REFERENCES Employees (PersonID)
+        FOREIGN KEY (FlightNumber) REFERENCES Flights (FlightNumber)
     );
 
 CREATE TABLE
     Reservations (
-        ReservationNumber INT NOT NULL,
+        ReservationID INT NOT NULL AUTO_INCREMENT,
         ReservationDate DATE NOT NULL,
-        Fare FLOAT NOT NULL,
+        Fare DECIMAL NOT NULL,
         PaymentMethod VARCHAR(5) NOT NULL,
         ScheduleID INT NOT NULL,
         PersonID INT NOT NULL,
-        PRIMARY KEY (ReservationNumber, ScheduleID, PersonID),
         FOREIGN KEY (ScheduleID) REFERENCES Schedule (ScheduleID),
-        FOREIGN KEY (PersonID) REFERENCES Customer (PersonID)
+        FOREIGN KEY (PersonID) REFERENCES Person (PersonID),
+        PRIMARY KEY (ReservationID)
     );
 
 CREATE TABLE
     Payment (
-        PaymentID INT NOT NULL,
-        ReservationNumber INT NOT NULL,
-        PRIMARY KEY (PaymentID),
-        FOREIGN KEY (ReservationNumber) REFERENCES Reservations (ReservationNumber)
+        PaymentID INT NOT NULL AUTO_INCREMENT,
+        ReservationID INT NOT NULL,
+        FOREIGN KEY (ReservationID) REFERENCES Reservations (ReservationID),
+        PRIMARY KEY (PaymentID)
     );
 
 CREATE TABLE
@@ -91,7 +101,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    Check (
+    CheckPayment (
         PaymentID INT NOT NULL,
         PRIMARY KEY (PaymentID),
         FOREIGN KEY (PaymentID) REFERENCES Payment (PaymentID)
@@ -105,21 +115,10 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    ScheduledFor (
+    CrewAssignments (
         ScheduleID INT NOT NULL,
-        ScheduleID INT NOT NULL,
-        PRIMARY KEY (ScheduleID, ScheduleID),
+        PersonID INT NOT NULL,
         FOREIGN KEY (ScheduleID) REFERENCES Schedule (ScheduleID),
-        FOREIGN KEY (ScheduleID) REFERENCES CrewAssignments (ScheduleID)
-    );
-
-CREATE TABLE
-    Airplanes (
-        AirplaneSerialNumber INT NOT NULL,
-        Model VARCHAR(255) NOT NULL,
-        Capacity INT NOT NULL,
-        NextMaintenanceDate DATE NOT NULL,
-        MaintenanceID INT,
-        PRIMARY KEY (AirplaneSerialNumber),
-        FOREIGN KEY (MaintenanceID) REFERENCES Maintenance (MaintenanceID)
+        FOREIGN KEY (PersonID) REFERENCES Person (PersonID),
+        PRIMARY KEY (ScheduleID, PersonID)
     );
